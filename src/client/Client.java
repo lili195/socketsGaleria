@@ -11,21 +11,30 @@ import java.nio.file.Paths;
 import java.util.Scanner;
 
 public class Client {
-    private static final String SERVER_ADDRESS = "localhost";
-    private static final int PORT = 15555;
+    private static String serverAddress;
+    private static int port;
     private static final String GALLERY_FOLDER = "src/galery";
 
     public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+
+        System.out.print("Ingrese la dirección del servidor: ");
+        serverAddress = scanner.nextLine();
+
+        System.out.print("Ingrese el puerto del servidor: ");
+        port = scanner.nextInt();
+
         try (
-                Socket socket = new Socket(SERVER_ADDRESS, PORT);
+                Socket socket = new Socket(serverAddress, port);
                 ObjectOutputStream out = new ObjectOutputStream(socket.getOutputStream());
-                ObjectInputStream in = new ObjectInputStream(socket.getInputStream());
-                Scanner scanner = new Scanner(System.in)) {
+                ObjectInputStream in = new ObjectInputStream(socket.getInputStream())) {
 
             while (true) {
                 System.out.println("1. Subir imagen");
                 System.out.println("2. Descargar galería");
+                System.out.println("3. Salir");
                 System.out.print("Seleccione una opción: ");
+
                 int option = scanner.nextInt();
 
                 if (option == 1) {
@@ -45,12 +54,19 @@ public class Client {
                         saveImage(imageBytes, imagePath);
                     }
                     System.out.println("Descarga completa.");
+                } else if (option == 3) {
+                    out.writeObject("EXIT");
+                    System.out.println(in.readObject());
+                    socket.close();
+                    return;
                 } else {
                     System.out.println("Opción no válida.");
                 }
             }
         } catch (IOException | ClassNotFoundException e) {
             e.printStackTrace();
+        } finally {
+            scanner.close();
         }
     }
 
@@ -64,7 +80,7 @@ public class Client {
             }
             return baos.toByteArray();
         }
-    } 
+    }
 
     private static void saveImage(byte[] imageBytes, String imagePath) {
         try (FileOutputStream fos = new FileOutputStream(imagePath)) {
