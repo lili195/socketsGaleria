@@ -11,6 +11,7 @@ import java.nio.file.Paths;
 
 public class ThreadServer extends Thread {
     private Socket clientSocket;
+    private static final String UPLOADS_FOLDER_PATH = "src/uploaded_images";
 
     public ThreadServer(Socket clientSocket) {
         this.clientSocket = clientSocket;
@@ -29,6 +30,10 @@ public class ThreadServer extends Thread {
                     case "UPLOAD":
                         System.out.println("Iniciando proceso de recepcion de imagen");
                         byte[] imageBytes = (byte[]) in.readObject();
+                        File uploadsFolder = new File(UPLOADS_FOLDER_PATH);
+                        if (!uploadsFolder.exists()) {
+                            createUploadsFolderIfNotExists(uploadsFolder);
+                        }
                         String imageName = saveImage(imageBytes, "src/uploaded_images");
                         Server.addToGallery(imageName);
                         System.out.println("Imagen subida exitosamente: " + imageName);
@@ -50,6 +55,16 @@ public class ThreadServer extends Thread {
         } catch (IOException | ClassNotFoundException e) {
             e.printStackTrace();
         }
+    }
+
+    private static void createUploadsFolderIfNotExists(File uploadsFolder) {
+        try {
+            Files.createDirectories(uploadsFolder.toPath());
+            System.out.println("Carpeta 'uploaded_images' creada exitosamente.");
+        } catch (IOException e) {
+            System.err.println("Error creando la carpeta 'uploaded_images': " + e.getMessage());
+        }
+
     }
 
     private String saveImage(byte[] imageBytes, String folderName) {
