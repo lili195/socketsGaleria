@@ -47,16 +47,25 @@ public class LogInFrame extends JFrame {
         acceptButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                String ip = ipServerField.getText();
-                int port = Integer.parseInt(portServerField.getText());
-                serverResponseLabel.setText("Intentando conectar a " + "IP:" + ip + " Puerto:" + port);
-                Socket socket = createSocketConnection(ip, port);
-                if (socket.isConnected()) {
-                    serverResponseLabel.setText("Conectado al servidor con éxito :D");
-                    new MainClientFrame(socket);
-                    setVisible(false);
-                }
+                try {
+                    String ip = ipServerField.getText();
+                    int port = Integer.parseInt(portServerField.getText());
+                    serverResponseLabel.setText("Intentando conectar a " + "IP:" + ip + " Puerto:" + port);
+                    
+                    Socket socket = createSocketConnection(ip, port);
 
+                    if (socket.isConnected()) {
+                        serverResponseLabel.setText("Conectado al servidor con éxito :D");
+                        new MainClientFrame(socket);
+                        setVisible(false);
+                    }
+                } catch (Exception ex) {
+                    serverResponseLabel.setText("No se pudo conectar al servidor, revise los campos de la IP o del puerto");
+                    System.out.println("==========================================");
+                    System.out.println("Información adicional del error: \n" + ex.getMessage());
+                    System.out.println("==========================================");
+
+                }
             }
         });
 

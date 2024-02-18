@@ -26,20 +26,28 @@ public class MainClientFrame extends JFrame {
         super("Galería de imágenes");
         initComponents(socket);
         setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
-        setSize(300, 200);
+        setSize(500, 300);
         setLocationRelativeTo(null);
         setVisible(true);
     }
 
     private void initComponents(Socket socket) {
-        setLayout(new FlowLayout());
+        setLayout(new GridLayout(2,1));
         uploadImagesButton = new JButton("Subir Imagen");
         downloadGalleryButton = new JButton("Descargar galería");
         exitButton = new JButton("Salir");
         configureButtons(socket);
-        add(uploadImagesButton);
-        add(downloadGalleryButton);
-        add(exitButton);
+        add(new JLabel("Se ha conectado al servidor con éxito, elija una opción: ", JLabel.CENTER));
+        add(createButtonPanel());
+    }
+
+    private JPanel createButtonPanel() {
+        JPanel panel = new JPanel();
+        panel.setLayout(new FlowLayout());
+        panel.add(uploadImagesButton);
+        panel.add(downloadGalleryButton);
+        panel.add(exitButton);
+        return panel;
     }
 
     private void configureButtons(Socket socket) {
