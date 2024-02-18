@@ -53,7 +53,7 @@ public class LogInFrame extends JFrame {
                 Socket socket = createSocketConnection(ip, port);
                 if (socket.isConnected()) {
                     serverResponseLabel.setText("Conectado al servidor con éxito :D");
-                    new MainClientFrame();
+                    new MainClientFrame(socket);
                     setVisible(false);
                 }
 

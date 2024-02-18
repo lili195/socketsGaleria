@@ -36,8 +36,8 @@ public class ThreadServer extends Thread {
                         }
                         String imageName = saveImage(imageBytes, "src/uploaded_images");
                         Server.addToGallery(imageName);
-                        System.out.println("Imagen subida exitosamente: " + imageName);
-                        out.writeObject("Imagen subida exitosamente: " + imageName);
+                        System.out.println("¡Imagen recibida con éxito!: " + imageName);
+                        out.writeObject("¡Imagen subida con éxito!: " + imageName);
                         break;
                     case "DOWNLOAD":
                         sendImagesToClient(out, "src/uploaded_images");
@@ -48,7 +48,7 @@ public class ThreadServer extends Thread {
                         this.interrupt();
                         break;
                     default:
-                        out.writeObject("Accion no valida");
+                        out.writeObject("Acción no válida");
                         break;
                 }
             }
@@ -93,7 +93,7 @@ public class ThreadServer extends Thread {
             }
             // Enviar el marcador "FINISHED" al final de la transmisión
             out.writeObject("FINISHED");
-            System.out.println("Proceso de envio de imagenes al cliente finalizado con exito");
+            System.out.println("Proceso de envio de imagenes al cliente finalizado con éxito");
         } catch (IOException e) {
             e.printStackTrace();
         }
