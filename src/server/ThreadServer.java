@@ -25,26 +25,31 @@ public class ThreadServer extends Thread {
             while (!Thread.currentThread().isInterrupted()) {
                 String action = (String) in.readObject();
 
-                if (action.equals("UPLOAD")) {
-                    // Recibir y agregar imagen a la carpeta "uploaded_images"
-                    System.out.println("Iniciando proceso de recepcion de imagen");
-                    byte[] imageBytes = (byte[]) in.readObject();
-                    String imageName = saveImage(imageBytes, "src/uploaded_images");
-                    Server.addToGallery(imageName);
-                    System.out.println("Imagen subida exitosamente: " + imageName);
-                    out.writeObject("Imagen subida exitosamente: " + imageName);
-                } else if (action.equals("DOWNLOAD")) {
-                    // Enviar la galería al cliente
-                    sendImagesToClient(out, "src/uploaded_images");
-                } else if (action.equals("EXIT")) {
-                    out.writeObject("Gracias por usar esta app :D ");
-                    System.out.println("Cliente desconectado");
-                    this.interrupt();
+                switch (action) {
+                    case "UPLOAD":
+                        System.out.println("Iniciando proceso de recepcion de imagen");
+                        byte[] imageBytes = (byte[]) in.readObject();
+                        String imageName = saveImage(imageBytes, "src/uploaded_images");
+                        Server.addToGallery(imageName);
+                        System.out.println("Imagen subida exitosamente: " + imageName);
+                        out.writeObject("Imagen subida exitosamente: " + imageName);
+                        break;
+                    case "DOWNLOAD":
+                        sendImagesToClient(out, "src/uploaded_images");
+                        break;
+                    case "EXIT":
+                        out.writeObject("Gracias por usar esta app :D ");
+                        System.out.println("Cliente desconectado");
+                        this.interrupt();
+                        break;
+                    default:
+                        out.writeObject("Accion no valida");
+                        break;
                 }
             }
         } catch (IOException | ClassNotFoundException e) {
             e.printStackTrace();
-        } 
+        }
     }
 
     private String saveImage(byte[] imageBytes, String folderName) {
@@ -62,7 +67,7 @@ public class ThreadServer extends Thread {
         System.out.println("Iniciando envio de imagenes al cliente");
         File folder = new File(folderName);
         File[] files = folder.listFiles();
-    
+
         try {
             if (files != null && files.length > 0) {
                 for (File file : files) {
@@ -78,6 +83,5 @@ public class ThreadServer extends Thread {
             e.printStackTrace();
         }
     }
-    
-    
+
 }
