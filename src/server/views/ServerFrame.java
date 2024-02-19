@@ -16,6 +16,7 @@ public class ServerFrame extends JFrame {
     private JTextArea logArea;
     private JLabel connectedClientsLabel;  
     private static ArrayList<String> gallery = new ArrayList<>();
+    private ServerSocket serverSocket;
 
     public ServerFrame() {
         super("Server");
@@ -56,7 +57,7 @@ public class ServerFrame extends JFrame {
 
     private void startServer() {
         try {
-            ServerSocket serverSocket = new ServerSocket(Integer.parseInt(port));
+            serverSocket = new ServerSocket(Integer.parseInt(port));
             log("Server started at " + port + " " + LocalDateTime.now());
             int connectedClients = 0;
 
