@@ -9,17 +9,21 @@ import java.net.Socket;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 
+import server.views.ServerFrame;
+
 public class ThreadServer extends Thread {
     private Socket clientSocket;
+    private ServerFrame serverFrame;
     private static final String UPLOADS_FOLDER_PATH = "src/uploaded_images";
 
-    public ThreadServer(Socket clientSocket) {
+    public ThreadServer(Socket clientSocket, ServerFrame serverFrame) {
         this.clientSocket = clientSocket;
+        this.serverFrame = serverFrame;
     }
 
     @Override
     public void run() {
-        System.out.println("Cliente conectado");
+        serverFrame.log("Cliente conectado");
         try (
                 ObjectOutputStream out = new ObjectOutputStream(clientSocket.getOutputStream());
                 ObjectInputStream in = new ObjectInputStream(clientSocket.getInputStream())) {
@@ -28,15 +32,15 @@ public class ThreadServer extends Thread {
 
                 switch (action) {
                     case "UPLOAD":
-                        System.out.println("Iniciando proceso de recepcion de imagen");
+                        serverFrame.log("Iniciando proceso de recepcion de imagen");
                         byte[] imageBytes = (byte[]) in.readObject();
                         File uploadsFolder = new File(UPLOADS_FOLDER_PATH);
                         if (!uploadsFolder.exists()) {
                             createUploadsFolderIfNotExists(uploadsFolder);
                         }
                         String imageName = saveImage(imageBytes, "src/uploaded_images");
-                        Server.addToGallery(imageName);
-                        System.out.println("¡Imagen recibida con éxito!: " + imageName);
+                        ServerFrame.addToGallery(imageName);
+                        serverFrame.log("¡Imagen recibida con éxito!: " + imageName);
                         out.writeObject("¡Imagen subida con éxito!: " + imageName);
                         break;
                     case "DOWNLOAD":
@@ -44,8 +48,9 @@ public class ThreadServer extends Thread {
                         break;
                     case "EXIT":
                         out.writeObject("Gracias por usar esta app :D ");
-                        System.out.println("Cliente desconectado");
+                        serverFrame.log("Cliente desconectado");
                         this.interrupt();
+                        decreaseConnectedClients();
                         break;
                     default:
                         out.writeObject("Acción no válida");
@@ -57,12 +62,18 @@ public class ThreadServer extends Thread {
         }
     }
 
-    private static void createUploadsFolderIfNotExists(File uploadsFolder) {
+    private void decreaseConnectedClients() {
+        serverFrame.updateConnectedClientsLabel(
+            Integer.parseInt(serverFrame.getConnectedClientsLabel().getText().split(": ")[1]) - 1
+        );
+    }
+
+    private void createUploadsFolderIfNotExists(File uploadsFolder) {
         try {
             Files.createDirectories(uploadsFolder.toPath());
-            System.out.println("Carpeta 'uploaded_images' creada exitosamente.");
+            serverFrame.log("Carpeta 'uploaded_images' creada exitosamente.");
         } catch (IOException e) {
-            System.err.println("Error creando la carpeta 'uploaded_images': " + e.getMessage());
+            serverFrame.log("Error creando la carpeta 'uploaded_images': " + e.getMessage());
         }
 
     }
@@ -79,7 +90,7 @@ public class ThreadServer extends Thread {
     }
 
     private void sendImagesToClient(ObjectOutputStream out, String folderName) {
-        System.out.println("Iniciando envio de imagenes al cliente");
+        serverFrame.log("Iniciando envio de imagenes al cliente");
         File folder = new File(folderName);
         File[] files = folder.listFiles();
 
@@ -93,7 +104,7 @@ public class ThreadServer extends Thread {
             }
             // Enviar el marcador "FINISHED" al final de la transmisión
             out.writeObject("FINISHED");
-            System.out.println("Proceso de envio de imagenes al cliente finalizado con éxito");
+            serverFrame.log("Proceso de envio de imagenes al cliente finalizado con éxito");
         } catch (IOException e) {
             e.printStackTrace();
         }
