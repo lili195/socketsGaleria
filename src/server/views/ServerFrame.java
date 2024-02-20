@@ -21,7 +21,26 @@ public class ServerFrame extends JFrame {
     public ServerFrame() {
         super("Server");
 
-        port = JOptionPane.showInputDialog("Ingrese el puerto del servidor:");
+        while (true){
+            String input = JOptionPane.showInputDialog("Ingrese el puerto del servidor:");
+            if (input == null) {
+                System.exit(0);
+            } else {
+                try {
+                    int portNumber = Integer.parseInt(input);
+                    if (isValidPort(portNumber)) {
+                        port = input;
+                        break;
+                    } else {
+                        JOptionPane.showMessageDialog(this, "Puerto no válido. Debe estar entre 1024 y 65535.");
+                    }
+                } catch (NumberFormatException e) {
+                    JOptionPane.showMessageDialog(this, "Ingrese un número válido para el puerto.");
+                }
+            }
+        }
+
+        
 
         JPanel panel = new JPanel();
         JButton closeButton = new JButton("Cerrar Servidor");
@@ -46,6 +65,11 @@ public class ServerFrame extends JFrame {
 
         startServer();
     }
+
+    private boolean isValidPort(int portNumber) {
+        return portNumber >= 1024 && portNumber <= 65535;
+    }
+
 
     public static ArrayList<String> getGallery() {
         return gallery;
