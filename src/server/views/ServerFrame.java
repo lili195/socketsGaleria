@@ -18,6 +18,8 @@ public class ServerFrame extends JFrame {
     private static ArrayList<String> gallery = new ArrayList<>();
     private ServerSocket serverSocket;
 
+    // holi
+
     public ServerFrame() {
         super("Server");
 
